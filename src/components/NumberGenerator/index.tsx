@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { FaCopy } from "react-icons/fa";
 import { copyToClipboard, downloadCSV } from "../../utils";
+import { toast } from "react-toastify";
+
 
 const NumberGenerator: React.FC = () => {
   const [range, setRange] = useState({ min: 0, max: 100 });
@@ -46,25 +48,38 @@ const NumberGenerator: React.FC = () => {
     return num > 1;
   };
 
-  const generateRandomNumbers = () => {
-    const { min, max } = range;
-    let generatedNumbers: number[] = [];
-    const excludeNumbers = exclude.split(",").map(Number);
+const generateRandomNumbers = () => {
+  const { min, max } = range;
+  let generatedNumbers: number[] = [];
+  const excludeNumbers = new Set(exclude.split(",").map(Number));
+  const possibleNumbers = [];
 
-    while (generatedNumbers.length < count) {
-      let randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+  for (let i = min; i <= max; i++) {
+    if (excludeNumbers.has(i)) continue;
+    if (isEven && i % 2 !== 0) continue;
+    if (isPrime && !isPrimeNumber(i)) continue;
 
-      if (isEven && randomNumber % 2 !== 0) continue;
-      if (isPrime && !isPrimeNumber(randomNumber)) continue;
-      if (isUnique && generatedNumbers.includes(randomNumber)) continue;
-      if (excludeNumbers.includes(randomNumber)) continue;
+    possibleNumbers.push(i);
+  }
 
-      generatedNumbers.push(randomNumber);
+  if (possibleNumbers.length < count) {
+    toast.error("Not enough possible numbers to generate the required count.");
+  }
+
+  while (generatedNumbers.length < count) {
+    let randomIndex = Math.floor(Math.random() * possibleNumbers.length);
+    let randomNumber = possibleNumbers[randomIndex];
+
+    if (isUnique) {
+      possibleNumbers.splice(randomIndex, 1);
     }
 
-    setNumbers(generatedNumbers);
-    setIsGenerated(true);
-  };
+    generatedNumbers.push(randomNumber);
+  }
+
+  setNumbers(generatedNumbers);
+  setIsGenerated(true);
+};
 
   return (
     <div>

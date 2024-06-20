@@ -1,5 +1,6 @@
 import { twMerge } from "tailwind-merge";
-import { clsx,  type ClassValue } from "clsx";
+import { clsx, type ClassValue } from "clsx";
+import { toast } from "react-toastify";
 
 export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
@@ -14,9 +15,11 @@ export const downloadCSV = (numbers: number[]) => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  toast.success("CSV downloaded!");
 };
 
 export const copyToClipboard = (numbers: number[]) => {
   const copyText = numbers.join(", ");
   navigator.clipboard.writeText(copyText);
+  toast.success("Copied to clipboard!");
 };
